@@ -1,0 +1,81 @@
+#pragma once
+#include<stack>
+#include<iostream>
+using namespace std;
+template<class T>
+class Queue  //Two stack implementation queue
+{
+public:
+	Queue()
+	{}
+	void Push(const T& data)
+	{
+		s1.push(data);
+	}
+	void Pop()
+	{
+		if (s2.empty())
+		{
+			while (!s1.empty())   
+			{
+				s2.push(s1.top()); //The elements of s1 are dumped into s2
+				s1.pop();
+			}
+			if (s2.empty())
+				cout << "s1 and s2 are both empty stack" << endl;
+		}
+		s2.pop();
+	}
+	T& Front()
+	{
+		if (s2.empty())
+		{
+			while (!s1.empty())
+			{
+				s2.push(s1.top());
+				s1.pop();
+			}
+		}
+		return s2.top();
+	}
+	T& Back()
+	{
+		if (s1.empty())
+		{
+			while (!s2.empty())
+			{
+				s1.push(s2.top());
+				s2.pop();
+			}
+		}
+		return s1.top();
+	}
+	size_t Size()
+	{
+		return s1.size() + s2.size();
+	}
+	bool Empty()
+	{
+		return s1.empty() && s2.empty();
+	}
+private:
+	//s1 deal with into stack,s2 deal with out of stack
+	stack<T> s1;
+	stack<T> s2;
+};
+void queue_test()
+{
+	int arr[] = { 1, 2, 6, 3, 4, 1, 5 };
+	int size=sizeof(arr) / sizeof(arr[0]);
+	Queue<int> qe;
+	for (int i = 0; i < size; ++i)
+		qe.Push(arr[i]);
+	qe.Pop();
+	qe.Pop();
+	qe.Pop();
+	qe.Pop();
+	cout <<"front:" <<qe.Front()<< endl;
+	cout <<"back:"<<qe.Back()<< endl;
+	cout << qe.Empty() << endl;
+	cout <<qe.Size()<< endl;
+}
