@@ -1,0 +1,17 @@
+class Solution {
+public:
+    double Power(double base, int exponent)
+    {
+        if(exponent<0&&base==0)
+           cout<<"The denominator cannot be 0"<<endl;
+ 1       int temp=1;
+       while(exp>0)
+       {
+           if((exp&0x01)==1)
+              temp*=base;
+           base*=base;      //just  base's 2 4 8 16...power
+           exp>>=1;
+       }
+        return exponent<0?(1.0/temp):temp;
+    }
+};
