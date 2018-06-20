@@ -1,0 +1,42 @@
+//solution 1
+class Solution {
+public:
+     int  NumberOf1(int n) {
+         int count=0;
+         while(n)
+         {
+          if(n%2==1)
+             ++count;
+          n>>=1;
+         }
+         return count;
+     }
+};
+
+//solution 2
+class Solution {
+public:
+     int  NumberOf1(int n) {
+         int count=0;
+         while(n)
+         {
+          count+=n & 0x01;
+          n>>=1;
+         }
+         return count;
+     }
+};
+
+//solution 3
+class Solution {
+public:
+     int  NumberOf1(int n) {
+         int count=0;
+         while(n)
+         {
+          n&=n-1;
+          ++count;
+         }
+         return count;
+     }
+};
