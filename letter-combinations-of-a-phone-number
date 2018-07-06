@@ -1,0 +1,32 @@
+class Solution {
+public:
+    vector<string> letterCombinations(string digits) {
+        int index=0;
+        dfs(digits,index);
+        return _lecom;
+    }
+    void dfs(string digits,int index)
+    {
+        if(index==digits.length())
+            _lecom.push_back(temp);
+        else
+        {
+             int i,j=digits[index]-'0';
+             //Get the string for the Numbers
+             string str=ninekey[j];
+             for(i=0;i<str.length();++i)
+             {
+               string str1=temp;
+               temp+=str[i];
+               dfs(digits,index+1);
+               temp=str1;    //In order to prevent while（index==digits.length()）continue add letter to temp 
+             }              //And just add another letter to the next loop
+        }
+        
+    }
+private:
+    //pinyin ninekey
+    string ninekey[10]{"","","abc","def","ghi","jkl","mno","pqrs","tuv","wxyz"};
+    vector<string> _lecom;
+    string temp="";       //add letter to temp till index==digits.length()
+};
