@@ -1,0 +1,35 @@
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+int main()
+{
+	int k, lenx, x, leny, y;
+	while (cin >> k >> lenx >> x >> leny >> y)
+	{
+		const int mod = 1e9 + 7;
+		vector<int> v;
+		for (int i = 0; i < x; ++i)
+			v.push_back(lenx);
+		for (int j = 0; j < y; ++j)
+			v.push_back(leny);
+		vector<vector<int> > st(k + 1, vector<int>(x + y, 1));
+		for (int i = 1; i < k + 1; ++i)   //st[i][j]
+		{                                 //Denotes that the songs before j can be merged to i's size
+			if (v[0] != i)
+				st[i][0] = 0;     //Consider the column with the subscript 1
+			for (int j = 1; j < x + y; ++j)
+			{
+				if (i >= v[j])  //The combined song size is longer than the single song
+				{
+					st[i][j] = (st[i - v[j]][j - 1] + st[i][j - 1]) % mod;
+				}
+				else
+					st[i][j] = (st[i][j - 1]) % mod;
+			}
+		}
+		cout << st[k].back() << endl;
+	}
+	system("pause");
+	return 0;
+}
