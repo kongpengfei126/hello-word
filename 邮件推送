@@ -19,8 +19,8 @@ from email.mime.application import MIMEApplication
 
 
 def email_send():
-    fromaddr = 'peng-fei.kong@mail.foxconn.com'
-    toaddrs = ['peng-fei.kong@mail.foxconn.com']
+    fromaddr = ''
+    toaddrs = ['']
 
     # 正文填充
     content = 'hello, this is email content.'
@@ -56,7 +56,7 @@ def email_send():
     m['to'] = toaddrs
 
     try:
-        server = smtplib.SMTP('10.129.4.252')
+        server = smtplib.SMTP('')
         server.sendmail(fromaddr, toaddrs, m.as_string())
         print('success')
         server.quit()
@@ -67,7 +67,7 @@ def email_send():
 def produce_chart():
     # 在当前目录下输出报表文件
     # 1.0 数据库连接 从15数据库拿数据
-    conn = pymysql.connect(host='10.124.129.15', port=3306, user='operations', password='foxconn167!@#',
+    conn = pymysql.connect(host='', port=3306, user='operations', password='',
                            database='saas', charset='utf8')
     cur = conn.cursor()
     # 2.0 调用获取数据库数据<报表对应>
