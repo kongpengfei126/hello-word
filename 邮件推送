@@ -1,0 +1,103 @@
+import datetime
+import email.utils
+import logging
+import mimetypes
+import pandas as pd
+import pymysql
+import smtplib
+import os
+import time
+import schedule
+from email.utils import parseaddr
+from email.utils import formataddr
+from email.header import Header
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
+from email.mime.application import MIMEApplication
+
+
+def email_send():
+    fromaddr = 'peng-fei.kong@mail.foxconn.com'
+    toaddrs = ['peng-fei.kong@mail.foxconn.com']
+
+    # 正文填充
+    content = 'hello, this is email content.'
+    textApart = MIMEText(content)
+
+    # 图片
+    # imageFile = '1.jpg'
+    # imageApart = MIMEImage(open(r'F:\pythonproject\fujiyun\timing\Email.py', 'rb').read(), 'jpg')
+    # imageApart.add_header('Content-Disposition', 'attachment', filename='1.jpg')
+
+    # pdf文件
+    # pdfFile = '《Python标准库》中文版.pdf'
+    # pdfApart = MIMEApplication(open(r'F:\pythonproject\fujiyun\timing\《Python标准库》中文版.pdf', 'rb').read())
+    # pdfApart.add_header('Content-Disposition', 'attachment', filename=pdfFile)
+
+    # zip压缩包
+    # zipFile = '算法设计与分析基础第3版PDF.zip'
+    # zipApart = MIMEApplication(open(zipFile, 'rb').read())
+    # zipApart.add_header('Content-Disposition', 'attachment', filename=zipFile)
+
+    # xlsx文件
+    chartFile = 'ex2.xlsx'
+    chartApart = MIMEApplication(open(r'.\ex2.xlsx', 'rb').read())
+    chartApart.add_header('Content-Disposition', 'attachment', filename=chartFile)
+    m = MIMEMultipart()
+    m.attach(textApart)
+    m.attach(chartApart)
+    # m.attach(imageApart)
+    # m.attach(pdfApart)
+    # m.attach(zipApart)
+    m['Subject'] = 'tittle'
+    m['from'] = fromaddr
+    m['to'] = toaddrs
+
+    try:
+        server = smtplib.SMTP('10.129.4.252')
+        server.sendmail(fromaddr, toaddrs, m.as_string())
+        print('success')
+        server.quit()
+    except smtplib.SMTPException as e:
+        print('error:', e)  # 打印错误
+
+
+def produce_chart():
+    # 在当前目录下输出报表文件
+    # 1.0 数据库连接 从15数据库拿数据
+    conn = pymysql.connect(host='10.124.129.15', port=3306, user='operations', password='foxconn167!@#',
+                           database='saas', charset='utf8')
+    cur = conn.cursor()
+    # 2.0 调用获取数据库数据<报表对应>
+    today = datetime.datetime.now().date()
+    inputTime = datetime.datetime.strftime(today, '%Y-%m-%d')
+    sql = "SELECT productName,sum(a.price) as 金额  \
+              FROM eps_order_product a LEFT JOIN eps_order b ON a.id = b.id\
+              WHERE\
+                  paidDate BETWEEN date_format(date_sub('{inputTime}',interval 29 day), '%Y-%m-%d') AND DATE_ADD('{inputTime}',INTERVAL 1 day) AND payStatus = 'paid' \
+              GROUP BY productID \
+              ORDER BY 金额  desc limit 0,10".format(inputTime=inputTime)
+    # 3.0 数据转为excel
+    pf = pd.read_sql(sql, conn, columns=['商品名', '金额'])
+    cur.close()
+    conn.close()
+    pf.to_excel('./ex2.xlsx', encoding='utf-8', index=False)
+    email_send()
+
+
+def schedule_task():
+    schedule.every().minutes.do(produce_chart)  # 每5分钟执行一次
+    # schedule.every().hour.do(produce_chart)  # 每小时执行一次
+    # schedule.every().day.at("23:00").do(produce_chart)  # 每天23:00执行一次
+    # schedule.every().monday.do(produce_chart)  # 每周星期一执行一次
+    # schedule.every().wednesday.at("22:15").do(produce_chart)  # 每周星期三22:15执行一次
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+
+if __name__ == "__main__":
+    schedule_task()
